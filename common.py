@@ -5,49 +5,93 @@ game_board = [i for i in range(9)]          # contains the current state of the 
 available_plays = [i for i in range(9)]     # contains the available plays
 
 
-def game_not_finished(board, sign):
-    """
-    Verifies if a player has already won, this function is called after each play.
+class game:
+    def __init__(self):
+        self.__board_status = [i for i in range(9)]
+        self.__available_plays = [i for i in range(9)]
+        self.__round_nb = 0
+        self.__end = False
 
-    :param board: list containing current state of the game
-    :param sign: the sign that was previously played
-    :return: a boolean: True if the game has to continue and False if the game has to stop, the sign previously played
-    """
-    full = True     # loop statement
+    @property
+    def round_nb(self):
+        return self.__round_nb
 
-    if len(available_plays) > 0:
-        full = False
+    @property
+    def end(self):
+        return self.__end
 
-    if board[0] == board[1] == board[2] or board[3] == board[4] == board[5] or board[6] == board[7] == board[8] or board[0] == board[3] == board[6] or board[1] == board[4] == board[7] or board[2] == board[5] == board[8] or board[0] == board[4] == board[8] or board[2] == board[4] == board[6]:
-        return False, sign
+    @property
+    def available_plays(self):
+        return self.__available_plays
 
-    elif full:
-        return False, "full"
+    def make_move(self, index, moving_player):
+        if (moving_player.sign == "X" and not self.__round_nb % 2) or (moving_player.sign == "O" and self.__round_nb % 2) or self.__end:
+            return False
 
-    else:
-        return True, ""
+        try:
+            index = int(index)
+        except ValueError:
+            return True
+
+        if index in self.__board_status:
+            self.__round_nb += 1
+            self.__board_status[index] = moving_player.sign
+            self.__available_plays.remove(index)
+            self.print_board()
+            self.__check_winner(moving_player)
+            return False
+        else:
+            return True
+
+    def print_board(self):
+        print("+", "+", "+", "+", sep='-------')
+        print("|       |       |       |")
+        print(f"|   {self.__board_status[0]}", self.__board_status[1], f"{self.__board_status[2]}   |", sep='   |   ')
+        print("|       |       |       |")
+        print("+", "+", "+", "+", sep='-------')
+        print("|       |       |       |")
+        print(f"|   {self.__board_status[3]}", self.__board_status[4], f"{self.__board_status[5]}   |", sep='   |   ')
+        print("|       |       |       |")
+        print("+", "+", "+", "+", sep='-------')
+        print("|       |       |       |")
+        print(f"|   {self.__board_status[6]}", self.__board_status[7], f"{self.__board_status[8]}   |", sep='   |   ')
+        print("|       |       |       |")
+        print("+", "+", "+", "+", sep='-------')
+
+    def __check_winner(self, pot_winner):
+        if self.__board_status[0] == self.__board_status[1] == self.__board_status[2] or self.__board_status[3] == self.__board_status[4] == self.__board_status[5] or self.__board_status[6] == self.__board_status[7] == self.__board_status[8] or self.__board_status[0] == self.__board_status[3] == self.__board_status[6] or self.__board_status[1] == self.__board_status[4] == self.__board_status[7] or self.__board_status[2] == self.__board_status[5] == self.__board_status[8] or self.__board_status[0] == self.__board_status[4] == self.__board_status[8] or self.__board_status[2] == self.__board_status[4] == self.__board_status[6]:
+            pot_winner.winner = True
+            self.__end = True
+        elif not any(i in [0, 1, 2, 3, 4, 5, 6, 7, 8] for i in self.__board_status):
+            pot_winner.winner = "full"
+            self.__end = True
 
 
-def show_play_board(board):
-    """
-    Prints the current state of the board to the screen
+class player:
+    def __init__(self, user_name, sign=""):
+        self.__user_name = user_name
+        self.__sign = sign
+        self.__winner = False
 
-    :param board: list containing current state of the game
-    :return:
-    """
-    print("+", "+", "+", "+", sep='-------')
-    print("|       |       |       |")
-    print(f"|   {board[0]}", board[1], f"{board[2]}   |", sep='   |   ')
-    print("|       |       |       |")
-    print("+", "+", "+", "+", sep='-------')
-    print("|       |       |       |")
-    print(f"|   {board[3]}", board[4], f"{board[5]}   |", sep='   |   ')
-    print("|       |       |       |")
-    print("+", "+", "+", "+", sep='-------')
-    print("|       |       |       |")
-    print(f"|   {board[6]}", board[7], f"{board[8]}   |", sep='   |   ')
-    print("|       |       |       |")
-    print("+", "+", "+", "+", sep='-------')
+    @property
+    def user_name(self):
+        return self.__user_name
+
+    @property
+    def sign(self):
+        return self.__sign
+
+    @property
+    def winner(self):
+        return self.__winner
+
+    @sign.setter
+    def sign(self, sign):
+        self.__sign = sign
+
+    @winner.setter
+    def winner(self, status=True):
+        self.__winner = status
 
 
 def random_number(begin=0, end=10, step=1):
@@ -68,34 +112,12 @@ def random_number(begin=0, end=10, step=1):
         print("Values entered were not accepted, inputs must be either int or float and must be of the same class !")
 
 
-def player_plays(player_name, sign):
-    """
-    Lets the player input the number of the case he wants to check
-    :param player_name: name of the player that is playing
-    :param sign: sign of the player that is playing
-    :return: None
-    """
-    invalid_play = True     # loop statement
-    play = ""               # variable will contain the players play
+def announce_winner(player_1, player_2):
+    if (player_1.winner or player_2.winner) == "full":
+        print("It's a tie !")
 
-    print(f"Your turn {player_name} !")
+    elif player_1.winner:
+        print(f"Congratulations, {player_1.user_name} won !")
 
-    # As long as there is no valid entry, the loop keeps asking for a number
-    while invalid_play:
-        play = input("Enter the number of the box you want to mark : ")
-
-        try:
-            play = int(play)
-
-            if play not in available_plays:
-                raise ValueError
-
-            else:
-                available_plays.remove(play)
-                invalid_play = False
-
-        except ValueError:
-            print("The value entered was not accepted, please try again...")
-
-    game_board[play] = sign
-    show_play_board(game_board)
+    elif player_2.winner:
+        print(f"Congratulations, {player_2.user_name} won !")
