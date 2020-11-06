@@ -7,10 +7,10 @@ def single_play():
     :return: None
     """
     incorrect_sign = True                                   # loop statement
-    game = common.game()                                    # sign the player will use
-    human = common.player(input("Enter your name : "))      # name of the human player
-    computer = common.player("computer")
-    passing_order = []
+    game = common.game()                                    # The game status (class game)
+    human = common.player(input("Enter your name : "))      # Instance of player class, which represents the human player
+    computer = common.player("computer")                    # Instance of player class, which represents the computer
+    passing_order = []                                      # Passing order of the 2 players
 
     # As long as there is no valid entry, the loop keeps asking which sign the player wants
     while incorrect_sign:
@@ -45,10 +45,17 @@ def single_play():
                 while not game.end and game.make_move(computer_plays(game), i):
                     pass
 
+    # Function will check who has win
     common.announce_winner(computer, human)
 
 
 def computer_plays(game):
+    """
+    Represents the computer
+
+    :param game: {class game} the current state of the game
+    :return: {int} the computer's move
+    """
     print("Computer's turn")
     play = game.available_plays[common.random_number(end=len(game.available_plays))]
     print(f"The computer chose number {common.game_board[play]}")

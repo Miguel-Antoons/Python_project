@@ -1,11 +1,10 @@
 import random
 
 
-game_board = [i for i in range(9)]          # contains the current state of the came
-available_plays = [i for i in range(9)]     # contains the available plays
-
-
 class game:
+    """
+    Defines the game state and all the functions related to the game
+    """
     def __init__(self):
         self.__board_status = [i for i in range(9)]
         self.__available_plays = [i for i in range(9)]
@@ -68,6 +67,9 @@ class game:
 
 
 class player:
+    """
+    Defines a player's property for in game use
+    """
     def __init__(self, user_name, sign=""):
         self.__user_name = user_name
         self.__sign = sign
@@ -113,6 +115,13 @@ def random_number(begin=0, end=10, step=1):
 
 
 def announce_winner(player_1, player_2):
+    """
+    Checks which of the 2 players has win and prints the result on the screen
+
+    :param player_1: {class player}
+    :param player_2: {class player}
+    :return: {None}
+    """
     if (player_1.winner or player_2.winner) == "full":
         print("It's a tie !")
 

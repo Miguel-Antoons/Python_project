@@ -3,11 +3,15 @@ import subprocess
 
 
 def installer():
+    """
+
+    :return:
+    """
     mysql_server = ""
     mysql_cursor = ""
     incorrect_values = True
 
-    subprocess.Popen("start chrome /new-tab https://dev.mysql.com/downloads/installer/", shell=True)
+    subprocess.Popen("explorer https://dev.mysql.com/downloads/installer/", shell=True)
     git_clone = subprocess.Popen("git clone https://github.com/Miguel-Antoons/tic-tac-toe-ai.git", shell=True, stderr=subprocess.PIPE)
     print(git_clone.stderr)
 
