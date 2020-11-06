@@ -1,0 +1,133 @@
+import mysql.connector
+import common
+
+
+turns = []
+
+
+class player_move:
+    def __init__(self, sign, turn_n: int, move: int, n_references=0, result=0.0):
+        self.__sign = sign
+        self.__turn_n = turn_n
+        self.__move = move
+        self.__n_references = n_references + 1
+        self.__result = result
+
+    @property
+    def sign(self):
+        return self.__sign
+
+    @property
+    def turn_n(self):
+        return self.__turn_n
+
+    @property
+    def move(self):
+        return self.__move
+
+    @property
+    def n_references(self):
+        return self.__n_references
+
+    @property
+    def result(self):
+        return self.__result
+
+    @result.setter
+    def result(self, result):
+        self.__result = ((self.__n_references - 1) * self.__result + result) / self.__n_references
+
+    def __str__(self):
+        return f"turn_n: {self.__turn_n}\tmove: {self.__move}\treferences: {self.__n_references}\tresult: {self.__result}"
+
+
+def ai_move():
+    limit = 0.5
+    cursor, database = db_connection()
+    query_string = "SELECT play, probability, n_references FROM turn_{} WHERE probability > {}".format(len(turns) + 1, limit)
+
+    for index, turn in enumerate(turns):
+        query_string += " and turn_{} = {}".format(index + 1, turn.move)
+
+    cursor.execute(query_string)
+    pot_ai_moves = cursor.fetchall()
+
+    cursor.close()
+    database.close()
+
+    if len(pot_ai_moves):
+        definite_play = common.random_number(0, len(pot_ai_moves))
+
+        if (len(turns) + 1) % 2:
+            sign = "O"
+        else:
+            sign = "X"
+
+        turns.append(player_move(sign, len(turns) + 1, pot_ai_moves[definite_play][0], pot_ai_moves[definite_play][2], pot_ai_moves[definite_play][1]))
+        print(turns[-1])
+        return turns[-1].move
+    else:
+        return "NOT_FOUND"
+
+
+def update_ai_database():
+    # Connection to the database
+    cursor, database = db_connection()
+
+    for turn in turns:
+        # verify if the moves are already present in the database
+        already_in_database = False
+        condition_query = "SELECT * FROM turn_{}".format(turn.turn_n)
+        where_condition = " WHERE play = {}".format(turn.move)
+
+        for i in range(turn.turn_n - 1):
+            where_condition += " and turn_{0}.turn_{1} = {2}".format(turn.turn_n, i + 1, turns[i].move)
+
+        condition_query += where_condition
+        cursor.execute(condition_query)
+        for (i) in cursor:
+            already_in_database = i
+
+        # Update of the database
+        if already_in_database:
+            # If they are already present in the database, we just update them
+            query_string = "UPDATE turn_{} SET probability = {}, n_references = {}".format(turn.turn_n, turn.result, turn.n_references)
+            query_string += where_condition
+            cursor.execute(query_string)
+        else:
+            # Else, we insert the new values in the database
+            values = [turn.move, turn.result, turn.n_references]
+            query_string = "INSERT INTO turn_{}(play, probability, n_references".format(turn.turn_n)
+            value_string = "VALUES (%s, %s, %s"
+
+            for i in range(turn.turn_n - 1):
+                query_string += ", turn_{}".format(i + 1)
+                value_string += ", %s"
+                values.append(turns[i].move)
+
+            query_string += ")"
+            value_string += ")"
+            values = tuple(values)
+
+            entire_query = query_string + value_string
+            cursor.execute(entire_query, values)
+
+        database.commit()
+
+    cursor.close()
+    database.close()
+
+
+def db_connection():
+    database = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="Bonnet532",
+        database="tictactoe"
+    )
+
+    return database.cursor(buffered=True), database
+
+
+if __name__ == "__main__":
+    pass

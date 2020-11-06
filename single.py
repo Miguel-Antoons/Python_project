@@ -1,4 +1,6 @@
 import common
+import AI
+from time import sleep
 
 
 def single_play():
@@ -57,6 +59,14 @@ def computer_plays(game):
     :return: {int} the computer's move
     """
     print("Computer's turn")
-    play = game.available_plays[common.random_number(end=len(game.available_plays))]
-    print(f"The computer chose number {common.game_board[play]}")
+    play = AI.ai_move()
+    if play == "NOT_FOUND" or len(AI.turns) >= 8:
+        play = game.available_plays[common.random_number(end=len(game.available_plays))]
+
+    print(f"The computer chose number {play}")
+    sleep(4)
     return play
+
+
+if __name__ == "__main__":
+    single_play()

@@ -1,4 +1,6 @@
 import random
+import AI
+from os import system
 
 
 class game:
@@ -38,11 +40,14 @@ class game:
             self.__available_plays.remove(index)
             self.print_board()
             self.__check_winner(moving_player)
+            if 9 > self.__round_nb > len(AI.turns):
+                AI.turns.append(AI.player_move(moving_player.sign, self.__round_nb, index))
             return False
         else:
             return True
 
     def print_board(self):
+        clear()
         print("+", "+", "+", "+", sep='-------')
         print("|       |       |       |")
         print(f"|   {self.__board_status[0]}", self.__board_status[1], f"{self.__board_status[2]}   |", sep='   |   ')
@@ -125,8 +130,29 @@ def announce_winner(player_1, player_2):
     if (player_1.winner or player_2.winner) == "full":
         print("It's a tie !")
 
+        for turn in AI.turns:
+            turn.result = 0.5
+
     elif player_1.winner:
         print(f"Congratulations, {player_1.user_name} won !")
 
+        for turn in AI.turns:
+            if turn.sign == player_1.sign:
+                turn.result = 1.0
+            else:
+                turn.result = 0.0
+
     elif player_2.winner:
         print(f"Congratulations, {player_2.user_name} won !")
+
+        for turn in AI.turns:
+            if turn.sign == player_2.sign:
+                turn.result = 1.0
+            else:
+                turn.result = 0.0
+
+    AI.update_ai_database()
+
+
+def clear():
+    system('cls')
