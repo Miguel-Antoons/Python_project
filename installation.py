@@ -1,4 +1,5 @@
 import subprocess
+from configparser import ConfigParser
 from os import path
 
 
@@ -6,8 +7,7 @@ def installer():
     subprocess.Popen("explorer https://dev.mysql.com/downloads/installer/", shell=True)
 
     if not path.exists("Python_project"):
-        git_clone = subprocess.Popen("git clone https://github.com/Miguel-Antoons/Python_project.git", shell=True, stderr=subprocess.PIPE)
-        print(git_clone.stderr)
+        subprocess.Popen("git clone https://github.com/Miguel-Antoons/Python_project.git", shell=True, stderr=subprocess.PIPE)
 
     print("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print("Welcome to the installation program for the tic-tac-toe game.")
@@ -18,7 +18,28 @@ def installer():
 
     input("Press any key to continue...")
 
+    create_config_file()
     create_ai_database()
+
+
+def create_config_file():
+    configuration_content = ConfigParser()
+
+    configuration_content["system_var"] = {
+        "epsilon": "0.5"
+    }
+
+    configuration_content["user_info"] = {
+        "admin": ""
+    }
+
+    configuration_content["database_login"] = {
+        "username": "root",
+        "password": "Bonnet532"
+    }
+
+    with open("config.ini", "w") as conf:
+        configuration_content.write(conf)
 
 
 def create_ai_database():
@@ -29,6 +50,10 @@ def create_ai_database():
     while incorrect_values:
         user = input("Enter the username of the mysql server : ")
         password = input("Enter the password of the mysql server : ")
+
+        configuration_content = ConfigParser()
+        configuration_content["database_login"]["username"] = user
+        configuration_content["database_login"]["password"] = password
 
         try:
             mysql_server = mysql.connector.connect(

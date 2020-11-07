@@ -1,5 +1,6 @@
 import mysql.connector
 import common
+from configparser import ConfigParser
 
 
 turns = []
@@ -114,10 +115,12 @@ def update_ai_database():
 
 
 def db_connection():
+    configuration_content = ConfigParser()
+    configuration_content.read("config.ini")
     database = mysql.connector.connect(
         host="localhost",
-        user="root",
-        password="Bonnet532",
+        user=configuration_content["database_login"]["username"],
+        password=configuration_content["database_login"]["password"],
         database="tictactoe"
     )
 
