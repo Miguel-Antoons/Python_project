@@ -3,14 +3,6 @@ import subprocess
 from os import path
 
 
-if __name__ == "__main__":
-    mysql_module = subprocess.Popen("pip install mysql.connector", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print(mysql_module.stdout)
-    print(mysql_module.stderr)
-    # installer()
-
-
-
 def installer():
     subprocess.Popen("explorer https://dev.mysql.com/downloads/installer/", shell=True)
 
@@ -164,3 +156,10 @@ def create_ai_database():
 
     mysql_cursor.close()
     mysql_server.close()
+
+
+if __name__ == "__main__":
+    mysql_module = subprocess.Popen("pip install mysql.connector", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print(mysql_module.stdout)
+    print(mysql_module.stderr)
+    installer()
