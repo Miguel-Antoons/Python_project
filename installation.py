@@ -6,7 +6,7 @@ def installer():
     subprocess.Popen("explorer https://dev.mysql.com/downloads/installer/", shell=True)
 
     if not path.exists("Python_project"):
-        git_clone = subprocess.Popen("git clone https://github.com/Miguel-Antoons/tic-tac-toe-ai.git", shell=True, stderr=subprocess.PIPE)
+        git_clone = subprocess.Popen("git clone https://github.com/Miguel-Antoons/Python_project.git", shell=True, stderr=subprocess.PIPE)
         print(git_clone.stderr)
 
     print("-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
