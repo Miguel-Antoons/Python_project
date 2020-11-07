@@ -1,4 +1,3 @@
-import mysql.connector
 import subprocess
 from os import path
 
@@ -6,7 +5,7 @@ from os import path
 def installer():
     subprocess.Popen("explorer https://dev.mysql.com/downloads/installer/", shell=True)
 
-    if path.exists("Python_project"):
+    if not path.exists("Python_project"):
         git_clone = subprocess.Popen("git clone https://github.com/Miguel-Antoons/tic-tac-toe-ai.git", shell=True, stderr=subprocess.PIPE)
         print(git_clone.stderr)
 
@@ -23,6 +22,7 @@ def installer():
 
 
 def create_ai_database():
+    import mysql.connector
     mysql_server = ""
     mysql_cursor = ""
     incorrect_values = True
@@ -159,7 +159,4 @@ def create_ai_database():
 
 
 if __name__ == "__main__":
-    mysql_module = subprocess.Popen("pip install mysql.connector", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    print(mysql_module.stdout)
-    print(mysql_module.stderr)
     installer()
