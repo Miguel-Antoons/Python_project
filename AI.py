@@ -6,11 +6,10 @@ turns = []
 
 
 class player_move:
-    def __init__(self, sign, turn_n: int, move: int, n_references=0, result=0.0):
+    def __init__(self, sign, turn_n: int, move: int, result=0.0):
         self.__sign = sign
         self.__turn_n = turn_n
         self.__move = move
-        self.__n_references = n_references + 1
         self.__result = result
 
     @property
@@ -26,25 +25,21 @@ class player_move:
         return self.__move
 
     @property
-    def n_references(self):
-        return self.__n_references
-
-    @property
     def result(self):
         return self.__result
 
     @result.setter
     def result(self, result):
-        self.__result = ((self.__n_references - 1) * self.__result + result) / self.__n_references
+        self.__result = result
 
     def __str__(self):
-        return f"turn_n: {self.__turn_n}\tmove: {self.__move}\treferences: {self.__n_references}\tresult: {self.__result}"
+        return f"turn_n: {self.__turn_n}\tmove: {self.__move}\tresult: {self.__result}"
 
 
 def ai_move():
     limit = 0.5
     cursor, database = db_connection()
-    query_string = "SELECT play, probability, n_references FROM turn_{} WHERE probability > {}".format(len(turns) + 1, limit)
+    query_string = "SELECT play FROM turn_{} WHERE probability > {}".format(len(turns) + 1, limit)
 
     for index, turn in enumerate(turns):
         query_string += " and turn_{} = {}".format(index + 1, turn.move)
@@ -63,7 +58,7 @@ def ai_move():
         else:
             sign = "X"
 
-        turns.append(player_move(sign, len(turns) + 1, pot_ai_moves[definite_play][0], pot_ai_moves[definite_play][2], pot_ai_moves[definite_play][1]))
+        turns.append(player_move(sign, len(turns) + 1, pot_ai_moves[definite_play][0]))
         print(turns[-1])
         return turns[-1].move
     else:
@@ -91,14 +86,14 @@ def update_ai_database():
         # Update of the database
         if already_in_database:
             # If they are already present in the database, we just update them
-            query_string = "UPDATE turn_{} SET probability = {}, n_references = {}".format(turn.turn_n, turn.result, turn.n_references)
+            query_string = "UPDATE turn_{} SET probability = (n_references * probability + {}) / (n_references + 1), n_references = n_references + 1".format(turn.turn_n, turn.result)
             query_string += where_condition
             cursor.execute(query_string)
         else:
             # Else, we insert the new values in the database
-            values = [turn.move, turn.result, turn.n_references]
+            values = [turn.move, turn.result]
             query_string = "INSERT INTO turn_{}(play, probability, n_references".format(turn.turn_n)
-            value_string = "VALUES (%s, %s, %s"
+            value_string = "VALUES (%s, %s, 1"
 
             for i in range(turn.turn_n - 1):
                 query_string += ", turn_{}".format(i + 1)
