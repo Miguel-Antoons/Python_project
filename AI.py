@@ -117,6 +117,7 @@ def update_ai_database():
 def db_connection():
     configuration_content = ConfigParser()
     configuration_content.read("config.ini")
+
     database = mysql.connector.connect(
         host="localhost",
         user=configuration_content["database_login"]["username"],
