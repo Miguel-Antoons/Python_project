@@ -1,7 +1,7 @@
 import subprocess
 from configparser import ConfigParser
-from os import path
-from os import system
+from os import path, system, environ
+from win32com.client import Dispatch
 
 
 def installer():
@@ -17,6 +17,7 @@ def installer():
     install_mysql()
     create_config_file()
     create_ai_database()
+    create_desktop_shortcut()
 
 
 def download_program_files():
@@ -100,7 +101,7 @@ def create_ai_database():
             print("Done")
 
         except mysql.connector.Error as error:
-            print(f"Error connecting to database: {error}")
+            print(f"error: unable to connect to database: {error}")
 
             if input("Enter 0 if you want to exit the installation process.") == "0":
                 return 0
@@ -225,6 +226,37 @@ def create_ai_database():
     return
 
 
+def create_desktop_shortcut():
+    if path.exists(path.join(environ["HOMEPATH"], "Desktop\\tic-tac-toe.lnk")) or input("Enter 0 if you don't want a desktop shortcut") == "0":
+        return
+
+    print("Creating desktop shortcut...")
+    desktop_path = path.join(environ["HOMEPATH"], "Desktop\\tic-tac-toe.lnk")
+    shell = Dispatch('WScript.Shell')
+    shortcut_object = shell.CreateShortCut(desktop_path)
+
+    if path.exists("Python_project"):
+        target = path.join(path.dirname(path.realpath(__file__)), "Python_project\\main.py")
+        working_directory = path.join(path.dirname(path.realpath(__file__)), "Python_project")
+        icon = path.join(path.dirname(path.realpath(__file__)), "Python_project\\shortcut_icon.ico")
+
+    elif path.exists("../Python_project"):
+        target = path.join(path.dirname(path.realpath(__file__)), "main.py")
+        working_directory = path.dirname(path.realpath(__file__))
+        icon = path.join(path.dirname(path.realpath(__file__)), "shortcut_icon.ico")
+
+    else:
+        print("error: cannot find working directory")
+        return
+
+    shortcut_object.TargetPath = target
+    shortcut_object.WorkingDirectory = working_directory
+    shortcut_object.IconLocation = icon
+    shortcut_object.save()
+    print("Done")
+
+
 if __name__ == "__main__":
-    installer()
+    create_desktop_shortcut()
+    # installer()
     system('pause')
