@@ -1,43 +1,51 @@
 import mysql.connector
-import common
+from game_management import common
+from utilities import security
 from configparser import ConfigParser
 
+# turns = []  # arrays of instances of the PlayerMove class
 
-turns = []
 
-
-class player_move:
-    def __init__(self, sign, turn_n: int, move: int, result=0.0):
-        self.__sign = sign
-        self.__turn_n = turn_n
-        self.__move = move
-        self.__result = result
-
-    @property
-    def sign(self):
-        return self.__sign
-
-    @property
-    def turn_n(self):
-        return self.__turn_n
-
-    @property
-    def move(self):
-        return self.__move
-
-    @property
-    def result(self):
-        return self.__result
-
-    @result.setter
-    def result(self, result):
-        self.__result = result
-
-    def __str__(self):
-        return f"turn_n: {self.__turn_n}\tmove: {self.__move}\tresult: {self.__result}"
+# class PlayerMove:
+#     """
+#     Represents a move performed by a Player
+#     """
+#
+#     def __init__(self, sign, turn_n: int, move: int, result=0.0):
+#         self.__sign = sign  # sign of the Player which made the move
+#         self.__turn_n = turn_n  # turn number
+#         self.__move = move  # the move performed by the Player
+#         self.__result = result  # the result of the move (1 = win, 0 = loss)
+#
+#     @property
+#     def sign(self):
+#         return self.__sign
+#
+#     @property
+#     def turn_n(self):
+#         return self.__turn_n
+#
+#     @property
+#     def move(self):
+#         return self.__move
+#
+#     @property
+#     def result(self):
+#         return self.__result
+#
+#     @result.setter
+#     def result(self, result):
+#         self.__result = result
+#
+#     def __str__(self):
+#         return f"turn_n: {self.__turn_n}\tmove: {self.__move}\tresult: {self.__result}"
 
 
 def ai_move():
+    """
+
+    :return:
+    """
     limit = 0.5
     cursor, database = db_connection()
     query_string = "SELECT play FROM turn_{} WHERE probability > {}".format(len(turns) + 1, limit)
@@ -59,7 +67,7 @@ def ai_move():
         else:
             sign = "X"
 
-        turns.append(player_move(sign, len(turns) + 1, pot_ai_moves[definite_play][0]))
+        turns.append(PlayerMove(sign, len(turns) + 1, pot_ai_moves[definite_play][0]))
         print(turns[-1])
         return turns[-1].move
     else:
@@ -67,6 +75,10 @@ def ai_move():
 
 
 def update_ai_database():
+    """
+
+    :return:
+    """
     # Connection to the database
     cursor, database = db_connection()
 
@@ -87,7 +99,8 @@ def update_ai_database():
         # Update of the database
         if already_in_database:
             # If they are already present in the database, we just update them
-            query_string = "UPDATE turn_{} SET probability = (n_references * probability + {}) / (n_references + 1), n_references = n_references + 1".format(turn.turn_n, turn.result)
+            query_string = "UPDATE turn_{} SET probability = (n_references * probability + {}) / (n_references + 1), n_references = n_references + 1".format(
+                turn.turn_n, turn.result)
             query_string += where_condition
             cursor.execute(query_string)
         else:
@@ -114,18 +127,24 @@ def update_ai_database():
     database.close()
 
 
-def db_connection():
-    configuration_content = ConfigParser()
-    configuration_content.read("config.ini")
-
-    database = mysql.connector.connect(
-        host="localhost",
-        user=configuration_content["database_login"]["username"],
-        password=configuration_content["database_login"]["password"],
-        database="tictactoe"
-    )
-
-    return database.cursor(buffered=True), database
+# def db_connection():
+#     """
+#
+#     :return:
+#     """
+#     security.decrypt_file("program_files/config.ini")
+#     configuration_content = ConfigParser()
+#     configuration_content.read("program_files\\config.ini")
+#
+#     database = mysql.connector.connect(
+#         host="localhost",
+#         user=configuration_content["database_login"]["username"],
+#         password=configuration_content["database_login"]["password"],
+#         database="tictactoe"
+#     )
+#
+#     security.encrypt_file("program_files/config.ini")
+#     return database.cursor(buffered=True), database
 
 
 if __name__ == "__main__":
