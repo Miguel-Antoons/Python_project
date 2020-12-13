@@ -74,7 +74,8 @@ def create_connection():
 
     # try to make a connection
     try:
-        return create_engine(f"mysql+pymysql://{configuration_content['database_login']['username']}:{configuration_content['database_login']['password']}@127.0.0.1/tictactoe").connect()
+        return create_engine(f"mysql+pymysql://{configuration_content['database_login']['username']}:"
+                             f"{configuration_content['database_login']['password']}@127.0.0.1/tictactoe").connect()
 
     # if no database exists, return False
     except Exception:
@@ -129,7 +130,8 @@ def update_ai_database():
     security.decrypt_file("program_files/config.ini")
     configuration_content = ConfigParser()
     configuration_content.read("program_files/config.ini")
-    configuration_content.set("system_var", "epsilon", str(float(configuration_content["system_var"]["epsilon"]) - 0.00000133))
+    configuration_content.set("system_var", "epsilon", str(float(configuration_content["system_var"]["epsilon"])
+                                                           - 0.00000133))
 
     # write the changes to the configuration file
     with open("program_files/config.ini", "w") as config_file:
