@@ -10,9 +10,9 @@ def single_play():
     """
     incorrect_sign = True                                   # loop statement
     human = common.Player(user.current_user.user_name)      # Instance of Player class which represents the human Player
-    common.game = common.Game()
     computer = common.Player("computer")                    # Instance of Player class, which represents the computer
     passing_order = []                                      # Passing order of the 2 players
+    common.game = common.Game()
 
     # As long as there is no valid entry, the loop keeps asking which sign the Player wants
     while incorrect_sign:
