@@ -53,7 +53,6 @@ class Game:
             self.__board_status[index] = moving_player.sign
             self.__available_plays.remove(index)
             self.print_board()
-            self.print_board()
             self.__check_winner(moving_player)
             if 9 > self.__round_nb > len(AI.turns):
                 AI.turns.append(AI.PlayerMove(moving_player.sign, self.__round_nb, index))

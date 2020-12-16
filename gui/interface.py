@@ -4,9 +4,9 @@ from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 
 
-tableau = {"mouv": " "} #envoye classe game completé
-tours = {"tours": 1}
-clickeffectuer = {"fait": False}
+tableau = {} #envoye classe game completé
+tours = {}
+clickeffectuer = {}
 person = []
 board = []
 id_change = []
@@ -47,6 +47,7 @@ class Grille(App):
                 else:
                     event.text = "O"
                 clickeffectuer["fait"] = True
+                break
 
     def update(self):
         """
@@ -55,11 +56,11 @@ class Grille(App):
         """
         if person[0] == "X":
             for i in board:
-                if id_change[-1] == i.text:
+                if str(id_change[-1]) == i.text:
                     i.text = "O"
         else:
             for i in board:
-                if id_change[-1] == i.text:
+                if str(id_change[-1]) == i.text:
                     i.text = "X"
 
 
@@ -69,5 +70,20 @@ def start(signe):
     :param signe: the signe of the local player
     :return: none
     """
+    global tableau  # envoye classe game completé
+    global tours
+    global clickeffectuer
+    global person
+    global board
+    global id_change
+
+    tableau = {"mouv": " "}
+    tours = {"tours": 1}
+    clickeffectuer = {"fait": False}
+    person = []
+    board = []
+    id_change = []
+
     person.append(signe)
-    Grille().run()
+    app = Grille()
+    app.run()

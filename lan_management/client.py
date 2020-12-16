@@ -10,9 +10,9 @@ def info():
     info about the server
     :return: a socket object : client
     """
-    port = 5050 # The port used by the server  (non-privileged ports are > 1023)
-    server_ip = socket.gethostbyname(socket.gethostname()) # get ip address serveur
-    addr = (server_ip, port) # address server
+    port = 5050     # The port used by the server  (non-privileged ports are > 1023)
+    server_ip = socket.gethostbyname(socket.gethostname())  # get ip address serveur
+    addr = (server_ip, port)    # address server
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #creates a socket object which specify address family and socket type. AF_NET = IPV4, SOCK_STREAM = TCP
     client.connect(addr)
     return client

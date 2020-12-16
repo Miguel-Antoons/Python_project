@@ -2,12 +2,13 @@ import subprocess
 import sys
 import csv
 import getpass
+import argparse
 from utilities import security
 from configparser import ConfigParser
 from os import path, system, environ, execv, mkdir
 
 
-def installer():
+def installer(program_files_path):
     """
     Start point of the installer program
     :return: None
@@ -19,7 +20,7 @@ def installer():
 
     system_requirements()
     download_program_files()
-    security.create_key()
+    security.create_key(program_files_path)
     install_mysql()
     create_config_file()
     create_csv_login()
@@ -50,7 +51,7 @@ def system_requirements():
     print("\tmath")
     print("\tdatetime")
     print("\tos")
-    print("\tmysql.connector")
+    print("\tmysql.connector\n")
 
     input("press any key to continue . . .")
 
@@ -72,6 +73,19 @@ def download_program_files():
 
     else:
         print("program files already exist")
+
+    if path.exists("Python_project"):
+        new_directory_path = "Python_project\\program_files"
+
+    elif path.exists("..\\Python_project"):
+        new_directory_path = "program_files"
+
+    else:
+        print("ERROR : unable to create configuration file --> could not find program directory")
+        return None
+
+    if not path.exists(new_directory_path):
+        mkdir(new_directory_path)
 
 
 def install_mysql():
@@ -122,19 +136,14 @@ def create_config_file():
     """
     # find the program directory
     if path.exists("Python_project"):
-        new_directory_path = "Python_project\\program_files"
         conf_file_path = "Python_project\\program_files\\config.ini"
 
     elif path.exists("..\\Python_project"):
-        new_directory_path = "program_files"
         conf_file_path = "program_files\\config.ini"
 
     else:
         print("error: unable to create configuration file --> could not find program directory")
         return None
-
-    if not path.exists(new_directory_path):
-        mkdir(new_directory_path)
 
     # if the configuration file does not exist
     if not path.exists(conf_file_path):
@@ -180,7 +189,7 @@ def create_csv_login():
         return None
 
     # check if the login.csv file already exists
-    if not path.exists("program_files/login.csv") and not path.exists("./Python_project/program_files/login.csv"):
+    if not path.exists(csv_file_path):
         print("Creating login.csv...")
 
         # initializing the keys of the csv file and writing them to the file
@@ -210,7 +219,7 @@ def create_csv_scores():
         return None
 
     # if the scores.csv file does not exist, create it
-    if not path.exists("program_files/scores.csv") and not path.exists("./Python_project/program_files/scores.csv"):
+    if not path.exists(csv_file_path):
         print("Creating scores.csv...")
 
         # initializing the keys of the csv file and writing them to the file
@@ -414,11 +423,6 @@ def create_desktop_shortcut():
 
     # find the program directory and adapt the paths to create the shortcut
     if path.exists("Python_project"):
-        target = path.join(path.dirname(path.realpath(__file__)), "Python_project\\main.py")
-        working_directory = path.join(path.dirname(path.realpath(__file__)), "Python_project")
-        icon = path.join(path.dirname(path.realpath(__file__)), "Python_project\\program_files\\shortcut_icon.ico")
-
-    elif path.exists("../Python_project"):
         target = path.join(path.dirname(path.realpath(__file__)), "main.py")
         working_directory = path.dirname(path.realpath(__file__))
         icon = path.join(path.dirname(path.realpath(__file__)), "program_files\\shortcut_icon.ico")
@@ -436,6 +440,12 @@ def create_desktop_shortcut():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("extern_path", type=int, help="Extern path or not", default=0)
+
+    args = parser.parse_args()
+
     # check if the win32com.client exists
     try:
         from win32com.client import Dispatch
@@ -452,5 +462,12 @@ if __name__ == "__main__":
     # create_config_file()
     # create_csv_scores()
     # create_ai_database()
-    installer()
+    if args.extern_path:
+        file_path = "./Python_project/program_files"
+        security.program_files_path = "Python_project/program_files/"
+    else:
+        file_path = "./program_files"
+
+    installer(file_path)
+
     system('pause')

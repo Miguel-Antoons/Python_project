@@ -1,3 +1,5 @@
+import threading
+from gui import interface
 from game_management import common, AI
 from user_management import user
 from time import sleep
@@ -12,7 +14,14 @@ def single_play():
     human = common.Player(user.current_user.user_name)      # Instance of Player class which represents the human Player
     computer = common.Player("computer")                    # Instance of Player class, which represents the computer
     passing_order = []                                      # Passing order of the 2 players
-    common.game = common.Game()
+
+    gui = False
+    if input("Do you want the game with a graphical user interface? (y / n) ").upper() == "Y":
+        common.game = common.Game(True)
+        gui = True
+
+    else:
+        common.game = common.Game()
 
     # As long as there is no valid entry, the loop keeps asking which sign the Player wants
     while incorrect_sign:
@@ -36,21 +45,46 @@ def single_play():
     input("Press any key to continue...")
 
     print("Let's begin !")
-    common.game.print_board()
+
+    if gui:
+        threading_single = threading.Thread(target=interface.start, args=str(human.sign))
+        threading_single.start()
+
+    else:
+        threading_single = False
+        common.game.print_board()
 
     # As long as there is no winner, the Game continues
     while not common.game.end:
         for i in passing_order:
             if i == human:
-                while not common.game.end and common.game.make_move(input(f"Your turn {i.user_name} !\nEnter "
-                                                                          f"a number : "), i):
-                    pass
+                if gui:
+                    while True:
+                        if common.game.end:
+                            break
+
+                        if interface.clickeffectuer["fait"]:
+                            interface.id_change.append(int(interface.tableau["mouv"]))
+                            common.game.make_move(int(interface.tableau["mouv"]), i)
+                            interface.clickeffectuer["fait"] = False
+                            break
+
+                else:
+                    while not common.game.end and common.game.make_move(
+                            input(f"Your turn {i.user_name} !\nEnter "f"a number : "), i):
+                        pass
+
             else:
-                while not common.game.end and common.game.make_move(computer_plays(common.game), i):
-                    pass
+                if not common.game.end:
+                    ordi = computer_plays(common.game)
+                    interface.id_change.append(ordi)
+                    while not common.game.end and common.game.make_move(ordi, i):
+                        pass
 
     # Function will check who has win
     common.announce_winner(computer, human)
+    if threading_single:
+        threading_single.join()
 
 
 def computer_plays(game):
@@ -71,7 +105,7 @@ def computer_plays(game):
 
     print(f"The computer chose number {int(play)}")
     sleep(2.5)
-    return play
+    return int(play)
 
 
 if __name__ == "__main__":
