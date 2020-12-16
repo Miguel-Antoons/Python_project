@@ -57,7 +57,7 @@ def option():
             print("\t{:20} {:20} {:100}\n".format("mtyscores", "[None]",
                                                   "Empties the score csv file and creates a new one"))
             print("\t{:20} {:20} {:100}\n".format("show", "[File / Table]",
-                                                  f"Show the file (login, score, config) or the table (turn_1, "
+                                                  f"Show the file (login, score) or the table (turn_1, "
                                                   f"{align_character}turn_2, turn_3, turn_4, turn_5, turn_6, turn_7, "
                                                   f"turn_8) {align_character}entered as argument. {align_character}"
                                                   f"Some files may only be accessed by the super-admin of the program"
